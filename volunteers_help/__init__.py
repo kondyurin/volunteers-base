@@ -13,3 +13,9 @@ migrate = Migrate(app, db)
 
 
 from volunteers_help.views import *
+from volunteers_help.models import District, Street, Volunteer, Order
+
+
+# District.init_district()
+# Volunteer.init_volunteer()
+# Street.init_street_volonteers()
