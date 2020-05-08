@@ -56,7 +56,7 @@ def get_volunteers():
 @app.route('/helpme/', methods=['POST'])
 def order():
     data = request.json
-    if not data.get('volunteer'):
+    if not data:
         return jsonify(), 400
     order = Order(district=data.get('district'),
                   street=data.get('street'),
