@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate, MigrateCommand
+from flask_migrate import Migrate
 
 
 from volunteers_help.config import BaseConfig
@@ -13,7 +13,7 @@ migrate = Migrate(app, db)
 
 
 from volunteers_help.views import *
-from volunteers_help.models import District, Street, Volunteer, Order
+from volunteers_help.models import District, Street, Volunteer
 
 
 # District.init_district()

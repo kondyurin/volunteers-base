@@ -5,14 +5,16 @@ from volunteers_help.config import basedir
 
 
 def get_json(filename):
-    with open (filename) as f:
+    with open(filename) as f:
         data = json.load(f)
     return data
 
 
 volunteer_streets = db.Table('volunteer_streets',
-                               db.Column('volunteer_id', db.Integer, db.ForeignKey('volunteer.id')),
-                               db.Column('street_id', db.Integer, db.ForeignKey('street.id')))
+                             db.Column('volunteer_id', db.Integer,
+                                       db.ForeignKey('volunteer.id')),
+                             db.Column('street_id', db.Integer,
+                                       db.ForeignKey('street.id')))
 
 
 class District(db.Model):
@@ -24,12 +26,12 @@ class District(db.Model):
     def init_district():
         districts = get_json(f'{basedir}/volunteers_help/json/districts.json')
         streets = get_json(f'{basedir}/volunteers_help/json/streets.json')
-        for k,v in districts.items():
+        for k, v in districts.items():
             district = District(id=k, title=v['title'])
             db.session.add(district)
         db.session.commit()
-        for k,v in districts.items():
-            for k1,v1 in streets.items():
+        for k, v in districts.items():
+            for k1, v1 in streets.items():
                 for street_id in v['streets']:
                     if street_id == int(k1):
                         district = District.query.filter_by(id=int(k)).first()
@@ -43,7 +45,8 @@ class Street(db.Model):
     title = db.Column(db.String(100))
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
     district = db.relationship('District', back_populates='streets')
-    volunteers = db.relationship('Volunteer', secondary='volunteer_streets', back_populates='streets')
+    volunteers = db.relationship('Volunteer', secondary='volunteer_streets',
+                                 back_populates='streets')
 
     @staticmethod
     def init_street_volonteers():
@@ -64,16 +67,17 @@ class Volunteer(db.Model):
     name = db.Column(db.String(100))
     userpic = db.Column(db.String(200))
     phone = db.Column(db.String(50))
-    streets = db.relationship('Street', secondary='volunteer_streets', back_populates='volunteers')
+    streets = db.relationship('Street', secondary='volunteer_streets',
+                              back_populates='volunteers')
 
     @staticmethod
     def init_volunteer():
         volunteers = get_json(f'{basedir}/volunteers_help/json/volunteers.json')
         for k, v in volunteers.items():
             volunteer = Volunteer(id=k,
-                                    name=v['name'],
-                                    userpic=v['userpic'],
-                                    phone=v['phone'])
+                                  name=v['name'],
+                                  userpic=v['userpic'],
+                                  phone=v['phone'])
             db.session.add(volunteer)
         db.session.commit()
 

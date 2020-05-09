@@ -1,7 +1,7 @@
 from flask_script import Manager
 from flask_migrate import MigrateCommand
 
-from volunteers_help import app, db
+from volunteers_help import app
 
 
 manager = Manager(app)

@@ -1,10 +1,7 @@
-import json
-
-from flask import render_template, jsonify, request
+from flask import jsonify, request
 
 from volunteers_help import app, db
-from volunteers_help.config import basedir
-from volunteers_help.models import District, Street, Volunteer, Order
+from volunteers_help.models import District, Street, Order
 
 
 @app.route('/api/v1.0/districts/', methods=['GET'])
@@ -68,4 +65,5 @@ def order():
                   text=data.get('text'))
     db.session.add(order)
     db.session.commit()
-    return jsonify({'status':'success'}), 201, {'Location':f'/helpme/{order.id}/'}
+    return jsonify({'status': 'success'}), 201, \
+        {'Location': f'/helpme/{order.id}/'}
