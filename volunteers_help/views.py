@@ -1,7 +1,10 @@
 from flask import jsonify, request
 
 from volunteers_help import app, db
-from volunteers_help.models import District, Street, Order
+from volunteers_help.utils import get_paginated_list, \
+                                  get_streets_json, \
+                                  get_volunteers_json
+from volunteers_help.models import District, Street, Order, Volunteer
 
 
 @app.route('/api/v1.0/districts/', methods=['GET'])
@@ -19,35 +22,48 @@ def get_districts():
 
 @app.route('/api/v1.0/streets/', methods=['GET'])
 def get_streets():
-    to_json = []
     district_id = request.args.get('district')
+    if not district_id:
+        streets = Street.query.all()
+        to_json = get_streets_json(streets)
+        return jsonify(get_paginated_list(
+                       to_json,
+                       '/api/v1.0/streets/',
+                       start=request.args.get('start', 1),
+                       limit=request.args.get('limit', 10)
+                       ))
     streets = Street.query.filter_by(district_id=district_id).all()
-    for street in streets:
-        volunteers_ids = [volunteer.id for volunteer in street.volunteers]
-        streets = {
-            'id': street.id,
-            'title': street.title,
-            'volunteer': volunteers_ids
-        }
-        to_json.append(streets)
-    return jsonify(to_json)
+    to_json = get_streets_json(streets)
+    return jsonify(get_paginated_list(
+                   to_json,
+                   f'/api/v1.0/streets/?district={district_id}&',
+                   start=request.args.get('start', 1),
+                   limit=request.args.get('limit', 10)
+                   ))
 
 
 @app.route('/api/v1.0/volunteers/', methods=['GET'])
 def get_volunteers():
     to_json = []
     street_id = request.args.get('street')
-    streets = Street.query.filter_by(id=street_id).all()
-    for street in streets:
-        for volunteer in street.volunteers:
-            volunteers = {
-                'id': volunteer.id,
-                'name': volunteer.name,
-                'userpic': volunteer.userpic,
-                'phone': volunteer.phone
-            }
-            to_json.append(volunteers)
-    return jsonify(to_json)
+    if not street_id:
+        volunteers = Volunteer.query.all()
+        to_json = get_volunteers_json(volunteers)
+        return jsonify(get_paginated_list(
+                   to_json,
+                   '/api/v1.0/volunteers/',
+                   start=request.args.get('start', 1),
+                   limit=request.args.get('limit', 10)
+                   ))
+    street = Street.query.filter_by(id=street_id).first()
+    volunteers = street.volunteers
+    to_json = get_volunteers_json(volunteers)
+    return jsonify(get_paginated_list(
+                   to_json,
+                   f'/api/v1.0/volunteers/?street={street_id}&',
+                   start=request.args.get('start', 1),
+                   limit=request.args.get('limit', 10)
+                   ))
 
 
 @app.route('/helpme/', methods=['POST'])
